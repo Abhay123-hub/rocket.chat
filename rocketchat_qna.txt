@@ -1,0 +1,451 @@
+Question: How can I extend the functionality of my Rocket.Chat workspace?
+Answer: To enhance your workspace's capabilities, you have several options:
+
+- **Submit a Pull Request:** Modify the source code directly to implement new features. This approach offers maximum flexibility but requires familiarity with the codebase.
+
+- **Use Integrations:** Create simple scripts that execute when messages are sent or received in a channel. Integrations are quick to develop but have limited scope.
+
+- **Build a Rocket.Chat App:** Develop apps that interact with the user interface and execute custom routines on various triggers. This method provides a balance between power and complexity and allows for distribution via the Rocket.Chat Marketplace.
+
+Each method has its strengths and can be chosen based on your specific requirements and technical expertise.
+Source: https://docs.rocket.chat/docs/rocketchat-apps-faq?utm_source=chatgpt.com
+Category: Development
+--------------------------------------------------
+Question: How do I access my Rocket.Chat workspace if I've forgotten its URL?
+Answer: If you've forgotten your workspace URL, it's recommended to contact your workspace administrator or IT department. They can provide you with the correct URL to access your Rocket.Chat environment.
+Source: https://docs.rocket.chat/docs/workspace-faq
+Category: Access & Login
+--------------------------------------------------
+Question: How do I deploy Rocket.Chat with AWS for Apple Silicon Macs (M-series)
+Answer: During EC2 instance launch, choose a different operating system, such as Ubuntu, from the 'Application and OS Images' (Amazon Machine Image) section.
+Source: https://docs.rocket.chat/docs/macos-faq
+Category: Deployment
+--------------------------------------------------
+Question: How do I deploy Rocket.Chat on Apple Silicon Macs (M-series)
+Answer: It is likely to get this error:
+
+-The requested image's platform (linux/amd64) does not match the detected host platform (linux/arm64/v8) and no specific platform was requested. 
+
+-Follow the steps below to resolve it:
+
+-Ensure you have Rosetta 2 on your Mac; this allows the M-series Macs to run Intel-based applications. Confirm this by running:
+
+
+-arch -x86_64 uname -m
+
+-If Rosetta 2 is installed, this command will output “x86_64.” If not, macOS will prompt you to install Rosetta 2.
+
+-Open Docker Desktop, navigate to Settings > General and enable Rosetta for Docker Desktop. This allows Docker to emulate x86_64/amd64 architecture 
+
+In the compose.yml file, add “platform: linux/amd64” to the rocketchat service.
+
+-Next, add “EXPERIMENTAL_DOCKER_DESKTOP_FORCE_QEMU: 1” to the mongodb service environment. This forces the service to use the correct emulation settings.
+
+-Now, run docker compose up -d
+
+-Your Rocket.Chat instance should now be accessible via http://localhost:3000.
+Source: https://docs.rocket.chat/docs/macos-faq
+Category: Deployment & Setup
+--------------------------------------------------
+Question: Why do I receive a question about the Unique ID change detected?
+Answer: **Unique ID** is the unique identifier of a server. It's a hash created when the Rocket.Chat's deployment starts for the first time.
+
+-To prevent Unique ID duplication caused by deployment clones, splits, etc., when the database is copied to start a new deployment, the Unique ID record is also copied, and it becomes the same for the old and new deployments. Rocket.Chat implements a fingerprint solution to help admins identify when those cases happen by mistake.
+
+The fingerprint is composed of the site URL setting and database connection string. When some parts of these two change, the fingerprint changes to a pending state. The admins are then requested to validate the fingerprint again by deciding if the change is, in fact, an expected update of the current workspace or a new workspace deployment.
+
+-**Configuration update**
+
+If the change detected was expected to be a normal workspace configuration change, like a site URL change or a database string change, it's safe to confirm it. By confirming the update, nothing will change and the new fingerprint will become validated.
+
+If the change is a new workspace, by confirming it as an update, it can generate issues with statistics reporting, license validation, push notifications, marketplace access, etc. since more than one workspace is accessing the cloud services using the same unique ID.
+
+-**New workspace**
+
+If the change detected, in fact, means a new deployment has been done, by confirming a new workspace, all the identification information will be reset:
+
+-**Unique ID:** A new unique hash will be generated.
+
+-**Cloud connection:** All cloud connections will be reset.
+
+-**Cloud workspace:** The cloud workspace data linking a cloud instance to the deployment will be reset.
+
+-**Cloud license:** Any license provided by the cloud portal will be reset.
+
+-If the change is not a new workspace, confirming a new workspace can generate issues when connecting the deployment to the cloud workspace.
+Source: https://docs.rocket.chat/docs/updating-rocketchat-faq
+Category: Administration & Configuration
+--------------------------------------------------
+Question: When will my snap installation get the latest release?
+Answer: Snaps are one of our biggest install base. They are also auto-updating. As a result, we like to spend more time testing before releasing. Updated Snaps are usually released around the 15th of the month - around two weeks after a new release. This gives us time to look for issues, so you don't have to. If you have special requirements and need to use the latest release immediately, please consider another installation method, e.g., Docker.
+Source: https://docs.rocket.chat/docs/snaps-faq
+Category: Updates & Maintenance
+--------------------------------------------------
+Question: Ubuntu 18.04 LTS gives the message 'snap not found', what's wrong?
+Answer: Make sure you're using x64 or amd64 (or armhf) images, especially on VPS or VMs. x86 (32-bit) is not supported.
+Source: https://docs.rocket.chat/docs/snaps-faq
+Category: Installation & Compatibility
+--------------------------------------------------
+Question: How do I revert to the previous version of Rocket.Chat?
+Answer: You can use this command: 
+
+```bash
+sudo snap revert rocketchat-server```
+Source: https://docs.rocket.chat/docs/snaps-faq
+Category: Upgrade & Maintenance
+--------------------------------------------------
+Question: How do I manually update to a new release?
+Answer: While updates happen automatically, usually within 6 hours from the time of release, you can update manually by issuing this command:
+
+```bash
+sudo snap refresh rocketchat-server
+```
+Source: https://docs.rocket.chat/docs/snaps-faq
+Category:  Upgrade & Maintenance
+--------------------------------------------------
+Question: What is the restart policy?
+Answer: Snap's policy is to restart on failure.
+Source: https://docs.rocket.chat/docs/snaps-faq
+Category: System Behavior
+--------------------------------------------------
+Question: How do I access the MongoDB shell?
+Answer: You might want to access the Mongo shell shipped with our Rocket.Chat Snap. 
+To do so, run:
+
+```bash
+rocketchat-server.mongo```
+Source: https://docs.rocket.chat/docs/snaps-faq
+Category: Database Management
+--------------------------------------------------
+Question: How do I add an option to mount media?
+Answer: The interface providing the ability to access removable media is not automatically connected upon installation, so if you'd like to use external storage (or otherwise use a device in /media for data), you need to give Snap permission to access removable media by connecting that interface:
+
+```bash
+sudo snap connect rocketchat-server:removable-media```
+Source: https://docs.rocket.chat/docs/snaps-faq
+Category: Configuration
+--------------------------------------------------
+Question: What folders do Snaps use?
+Answer: -Your actual Snap files for each version of Rocket.Chat are copied to: /var/lib/snapd/snaps and they are mounted in read-only mode.
+Your Snap common directory is: /var/snap/rocketchat-server/common/; file uploads to disk and the database are stored here.
+Your Snap data directory is /var/snap/rocketchat-server/<version>; this is a versioned folder.
+You can access the current Snap data directory at /var/snap/rocketchat-server/current.
+Source: https://docs.rocket.chat/docs/snaps-faq
+Category: File System & Storage
+--------------------------------------------------
+Question: How do I remove a specific previous version of Rocket.Chat?
+Answer: You can do this by issuing the following command, where N is the desired version:
+```bash
+snap remove --revision=N rocketchat-server```
+Source: https://docs.rocket.chat/docs/snaps-faq
+Category: Upgrade & Maintenance
+--------------------------------------------------
+Question: How do I access my workspace in Rocket.Chat?
+Answer: Open your browser and go to the URL provided by your administrator, which will be in the format https://your-workspace-address.rocket.chat. Enter your username and password to log in.
+Source: https://docs.rocket.chat/docs/workspace-faq
+Category: Access & Login
+--------------------------------------------------
+Question: Can I access my workspace through a mobile device?
+Answer: Yes, Rocket.Chat provides mobile applications for both iOS and Android. You can download these from their respective app stores. Once installed, enter your workspace URL and login details to access your workspace
+Source: https://docs.rocket.chat/docs/workspace-faq
+Category: Access & Login
+--------------------------------------------------
+Question: I'm having trouble logging in to my workspace, what can I do?
+Answer: Ensure you've entered the correct workspace URL and login details correctly. If you've forgotten your password, use the Forgot your password? link on the login page. If problems persist, contact your workspace administrator.
+Source: https://docs.rocket.chat/docs/workspace-faq
+Category: Access & Login
+--------------------------------------------------
+Question: Can I switch between multiple workspaces in Rocket.Chat?
+Answer: You can switch between different workspaces by adding a new server. Click on the dropdown menu next to your workspace name (top left corner), then click Add new server.
+Source: https://docs.rocket.chat/docs/workspace-faq
+Category: Access & Login
+--------------------------------------------------
+Question: Can I access Rocket.Chat offline?
+Answer: Rocket.Chat requires an internet connection for real-time messaging. However, if you've accessed some chats while online, you may be able to see them offline due to caching, depending on your app or browser settings
+Source: https://docs.rocket.chat/docs/workspace-faq
+Category: Access & Login
+--------------------------------------------------
+Question: How do I lock registration on Rocket.Chat?
+Answer: 1.Log in to Rocket.Chat with an account that has administrative privileges.
+2.Click on the three horizontal lines icon in the top left corner of the chat window, which will bring up a dropdown menu.
+3.Click on Workspace > Settings > Accounts.
+4.On the accounts menu, scroll down to the Registration section.
+5.You see an option labeled Registration Form. By default, it's likely set to Public. Click on it and change it to Disabled, depending on your preference.
+6.Save the changes.
+
+By changing the registration method to Disabled, no new registrations will be accepted at all.
+Keep in mind that this will only prevent new user registrations. Existing users can still use the platform as usual.
+Source: https://docs.rocket.chat/docs/workspace-faq
+Category: User Management
+--------------------------------------------------
+Question: How do I change my username in Rocket.Chat?
+Answer: Go to My Account > Profile, then change the Username field. Click Save changes when you're done.
+Source: https://docs.rocket.chat/docs/my-account-faqs
+Category: User Management
+--------------------------------------------------
+Question: How can I deactivate my account on Rocket.Chat?
+Answer: Here is a general way to deactivate your account on Rocket.Chat:
+1.Click your profile picture (or username initials if a picture is not set) in the top left corner.
+2.Click on My Account.
+3.Select Profile from the side menu.
+4.Scroll down to find and click on Deactivate My Account.
+5.You will have to confirm your decision because this action is irreversible.
+
+Remember, deactivation is not deletion. The deactivation will prevent you from using your account, but your data might still be stored on the server. For complete deletion, contact your server's admin or Rocket.Chat's customer support if it's a workspace they manage directly.
+Source: https://docs.rocket.chat/docs/my-account-faqs
+Category: User Management
+--------------------------------------------------
+Question: How can I change my email address in Rocket.Chat?
+Answer: Navigate to My Account > Profile. Here, you can change the Email field. Click Save changes when finished. Note: Depending on the settings of your server, this option might not be available.
+Source: https://docs.rocket.chat/docs/my-account-faqs
+Category: User Management
+--------------------------------------------------
+Question: How do I change my avatar in Rocket.Chat?
+Answer: Go to My Account > Avatar, and choose from the available options (upload an image, use a URL, use Gravatar, or remove avatar). Don't forget to save the changes!
+Source: https://docs.rocket.chat/docs/my-account-faqs
+Category: User Management
+--------------------------------------------------
+Question: How do I enable two-factor authentication on Rocket.Chat?
+Answer: Go to My Account > Security > Two Factor Authentication. Follow the instructions to set it up. Note: This feature may not be available on all servers.
+Source: https://docs.rocket.chat/docs/my-account-faqs
+Category: Security
+--------------------------------------------------
+Question: How can I change the language in Rocket.Chat?
+Answer: Navigate to My Account > Preferences. In the Localization section, you can choose your preferred language from the dropdown menu. Click Save changes when done.
+Source: https://docs.rocket.chat/docs/my-account-faqs
+Category: User Preferences
+--------------------------------------------------
+Question: Can I change the theme or turn on dark mode in Rocket.Chat?
+Answer: Yes, go to My Account > Preferences > Global > Theme Appearance. Here, you can set your desired theme.
+Source: https://docs.rocket.chat/docs/my-account-faqs
+Category: User Preferences
+--------------------------------------------------
+Question: How do I adjust notification preferences in Rocket.Chat?
+Answer: Go to My Account > Preferences > Notifications. Here, you can adjust when and how you get notified.
+Source: https://docs.rocket.chat/docs/my-account-faqs
+Category: User Preferences
+--------------------------------------------------
+Question: What identity management features are exclusive to the Premium plan?
+Answer: While basic functionalities such as LDAP connection to sync user names and unique identifiers remain in the Community plan, the Premium plan will exclusively offer extended user attribute sync, group/team management, and background sync.
+Source: https://docs.rocket.chat/docs/identity-management-faq
+Category: Identity & Authentication
+--------------------------------------------------
+Question: What do LDAP, Active Directory, OAuth, and SAML mean?
+Answer: **Directory service**
+A directory service is a shared system that helps organize and manage various items and network resources, such as files, users, printers, and devices. Examples include Microsoft AD, NetIQ eDirectory, and Apache Directory.
+**LDAP**
+Lightweight directory access protocol (LDAP) is a protocol designed to enable easy access to and management of distributed directory information services over an IP network.
+**SAML**
+Security Assertion Markup Language(SAML) is an open standard for exchanging authentication and authorization data between parties, particularly between an identity provider and a service provider.
+**OAuth**
+OAuth is a widely used open standard for granting websites and apps access to users' information on other platforms, without revealing passwords. Examples include Google, Facebook, LinkedIn, and Twitter.
+Source: https://docs.rocket.chat/docs/identity-management-faq
+Category: Identity & Authentication
+--------------------------------------------------
+Question: Why is identity management crucial?
+Answer: Integrating with your organization's user directory ensures timely updates to user access. For instance, when someone joins the organization, their Rocket.Chat account is automatically created, and when they leave, their account is promptly deactivated. This becomes more crucial as the user scale increases.
+Source: https://docs.rocket.chat/docs/identity-management-faq
+Category: Identity & Authentication
+--------------------------------------------------
+Question: What is the impact of single sign-on (SSO) in Rocket.Chat?
+Answer: **Single Sign-On (SSO)** allows users to authenticate once and access multiple independent software systems using a single set of credentials. SSO doesn't affect workspaces using social login capabilities (e.g., Google, LinkedIn), where users sign in through those platforms.
+Source: https://docs.rocket.chat/docs/identity-management-faq
+Category: Identity & Authentication
+--------------------------------------------------
+Question: Why am I unable to use the code I contributed to building for LDAP/SAML/custom OAuth?
+Answer: We are rewriting the LDAP feature in TypeScript and improving it over time. If you can't use your code due to this, you can be rest assured that we acknowledge community contributions. For those who contributed to LDAP/SAML/Custom OAuth, steps are taken to ensure that the changes do not negatively impact your operations.
+Source: https://docs.rocket.chat/docs/identity-management-faq
+Category: Development & Contributions
+--------------------------------------------------
+Question: How is my air-gapped environment impacted?
+Answer: If the Rocket.Chat workspace is [air-gapped](https://docs.rocket.chat/v1/docs/rocketchat-air-gapped-deployment) but linked to an internal LDAP server, subscribe to any of Rocket.Chat's [premium plan](https://docs.rocket.chat/v1/docs/our-plans) to access advanced LDAP/SAML/OAuth features.
+Source: https://docs.rocket.chat/docs/identity-management-faq
+Category: Security & Privacy
+--------------------------------------------------
+Question: Does the LDAP change affect the security or data privacy in my air-gapped environment?
+Answer: No, there are no adverse effects.
+Source: https://docs.rocket.chat/docs/identity-management-faq
+Category: Security & Privacy
+--------------------------------------------------
+Question: What does the Bind successful but user was not found via search error mean?
+Answer: This error indicates that the login attempt was successful, but a follow-up search for the user on the LDAP server returned no results. To resolve this, disable the Find user after login setting.
+Source: https://docs.rocket.chat/docs/identity-management-faq
+Category: Troubleshooting & Errors
+--------------------------------------------------
+Question: How can I prevent disabled LDAP users from logging into Rocket.Chat?
+Answer: Use the [Sync User Active State](https://docs.rocket.chat/v1/docs/ldap-premium-settings#advanced-sync) setting in Advanced Sync. Please be aware that compatibility with all LDAP servers is not guaranteed.
+Source: https://docs.rocket.chat/docs/identity-management-faq
+Category: Identity & Authentication
+--------------------------------------------------
+Question: Why can't I log in even though the setup seems correct?
+Answer: If you're unable to log in without receiving error messages (and the last log entry is 'Attempt to bind'), ensure that the LDAP account username doesn't match any local account username on your workspace. For instance, if you have a local user with the username 'joe', enabling LDAP and attempting to log in with the same username 'joe' from your LDAP server may fail without providing an error message. In this case, you won't be able to log in using 'joe,' your LDAP password, or your local password.
+Source: https://docs.rocket.chat/docs/identity-management-faq
+Category: Troubleshooting & Errors
+--------------------------------------------------
+Question: How do I tell if Rocket.Chat is actually running?
+Answer: You can check whether either or all of them are running or not with the following command:
+
+```bash
+snap services rocketchat-server```
+Look into the third column (Current) that logs the current state of the services.
+
+Another option is to use the systemctl command. To quickly check if a service is active or not, use the is-active subcommand or the more well-known status subcommand. See the table below to know the name of the service you want to inspect.
+
+| Service      | Snap Service Name     | Systemd Service Name                        |
+|-------------|----------------------|--------------------------------------------|
+| MongoDB     | `rocketchat-mongo`    | `snap.rocketchat-server.rocketchat-mongo`  |
+| Caddy       | `rocketchat-caddy`    | `snap.rocketchat-server.rocketchat-caddy`  |
+| Rocket.Chat | `rocketchat-server`   | `snap.rocketchat-server.rocketchat-server` |
+ 
+ ```bash
+systemctl is-active snap.rocketchat-server.rocketchat-mongo 
+ systemctl is-active snap.rocketchat-server.rocketchat-caddy 
+ systemctl is-active snap.rocketchat-server.rocketchat-server 
+``` Or use the status subcommand:
+```bash
+systemctl status snap.rocketchat-server.rocketchat-mongo
+systemctl status snap.rocketchat-server.rocketchat-caddy
+systemctl status snap.rocketchat-server.rocketchat-server
+
+Source: https://docs.rocket.chat/docs/snaps-faq
+Category: Administration
+--------------------------------------------------
+Question: How do I edit MongoDB configuration?
+Answer: You can find the mongod configuration file in /var/snap/rocketchat-server/current/mongod.conf.
+Source: https://docs.rocket.chat/docs/snaps-faq
+Category: Administration
+--------------------------------------------------
+Question: Why am I getting the 'Request Entity Too Large' error on file upload?
+Answer: The error shown below is when the upload limit is less than the size of the file in Rocket.Chat.
+```File exceeds allowing 1 B.[error-file-too-large]```
+If you are using nginx as your load balancer, it could be nginx limit that is throwing the following error not your Rocket.Chat limit.
+```Request Entity Too Large```Edit your Nginx configuration to increase the client_max_body_size value. Learn more [here](https://www.cyberciti.biz/faq/linux-unix-bsd-nginx-413-request-entity-too-large/).Large file sizes can affect the Mongo sort operation follow [this guide](https://developerslogblog.wordpress.com/2019/11/27/mongodb-sort-how-to-fix-maximum-ram-exceeded-error/) to resolve it
+Source: https://docs.rocket.chat/docs/file-upload-faqs
+Category: File Upload & Storage
+--------------------------------------------------
+Question: What are the system prerequisites for setting up a Rocket.Chat development environment on Linux and Windows?
+Answer: To set up a Rocket.Chat development environment on Linux and Windows, you need at least 12GB of RAM for building (2GB is sufficient for deployment) and should use a standard user account (avoid root or sudo) to prevent file permission issues.
+Source: https://developer.rocket.chat/docs/linux-and-windows-rocketchat-development-environment
+Category: Environment Setup
+--------------------------------------------------
+Question: How do I update my Ubuntu distribution before setting up the Rocket.Chat development environment?
+Answer: Open the Ubuntu shell and run the following command to update your distribution:
+
+```bash
+sudo apt update && sudo apt dist-upgrade -y
+```
+This command ensures your system is current before proceeding with the setup.
+Source: https://developer.rocket.chat/docs/linux-and-windows-rocketchat-development-environment
+Category: System Update
+--------------------------------------------------
+Question: How can I install the necessary build tools on Ubuntu for Rocket.Chat development?
+Answer: Install the required build tools by executing this command in your Ubuntu shell:
+
+```bash
+sudo apt install git curl unzip make build-essential python3 g++
+```
+This command installs Git, Curl, Unzip, Make, and other essential tools for building Rocket.Chat.
+Source: https://developer.rocket.chat/docs/linux-and-windows-rocketchat-development-environment
+Category: Installation
+--------------------------------------------------
+Question: How do I clone my forked Rocket.Chat repository on a Linux or Windows environment?
+Answer: After forking the Rocket.Chat repository on GitHub, open your Ubuntu shell (or equivalent) and navigate to your home directory. Then, run the following command to clone your repository:
+
+```bash
+git clone https://github.com/<your-username>/Rocket.Chat.git
+```
+Make sure to replace `<your-username>` with your actual GitHub username.
+Source: https://developer.rocket.chat/docs/linux-and-windows-rocketchat-development-environment
+Category: Repository Setup
+--------------------------------------------------
+Question: How do I set up Node.js and Yarn for Rocket.Chat development?
+Answer: To set up Node.js and Yarn:
+
+- Navigate to the Rocket.Chat directory and check the required Node.js version with:
+
+  ```bash
+  cat package.json | grep -A4 engines | grep node
+  ```
+
+- Install the required Node.js version using nvm:
+
+  ```bash
+  nvm install x.x.x
+  ```
+
+  (Replace `x.x.x` with the version from the previous step.)
+
+- Verify the installation using `node -v`.
+
+- Install Yarn globally using:
+
+  ```bash
+  npm install -g yarn
+  ```
+
+- Confirm Yarn's installation with `yarn --version`.
+Source: https://developer.rocket.chat/docs/linux-and-windows-rocketchat-development-environment
+Category: Development Environment
+--------------------------------------------------
+Question: How do I set up Deno for Rocket.Chat development?
+Answer: To set up Deno:
+
+- In the Rocket.Chat directory, check the required Deno version with:
+
+  ```bash
+  cat .tool-versions | grep deno
+  ```
+
+- Install the required version using:
+
+  ```bash
+  curl -fsSL https://deno.land/install.sh | sh -s v1.37.1
+  ```
+
+- Verify the installation by running `deno --version` and ensure Deno is added to your system's PATH.
+Source: https://developer.rocket.chat/docs/linux-and-windows-rocketchat-development-environment
+Category: Development Environment
+--------------------------------------------------
+Question: How do I install Meteor for my Rocket.Chat development environment?
+Answer: To install Meteor:
+
+- Check the required Meteor version by inspecting the file:
+
+  ```bash
+  cat apps/meteor/.meteor/release
+  ```
+
+- Install Meteor using the following command (replacing `x.x` with the appropriate version):
+
+  ```bash
+  curl https://install.meteor.com/?release=x.x | sh
+  ```
+
+- Verify the installation by running `meteor --version`.
+Source: https://developer.rocket.chat/docs/linux-and-windows-rocketchat-development-environment
+Category: Installation
+--------------------------------------------------
+Question: How do I build and run the Rocket.Chat server in a development environment?
+Answer: After setting up all dependencies:
+
+- Navigate to the Rocket.Chat directory and run `yarn` to install all dependencies.
+- Build and run the server with:
+
+  ```bash
+  yarn dsv
+  ```
+
+The initial build may take ten or more minutes. Once running, access Rocket.Chat at `http://localhost:3000`.
+Source: https://developer.rocket.chat/docs/linux-and-windows-rocketchat-development-environment
+Category: Running the Server
+--------------------------------------------------
+Question: How do I edit Rocket.Chat files and manage auto-rebuilds during development?
+Answer: The recommended IDE for editing Rocket.Chat files is Visual Studio Code. Open your cloned Rocket.Chat repository in VS Code. Any changes you make will automatically trigger a server rebuild. If the server shuts down after changes, restart it by running `yarn dsv` again.
+Source: https://developer.rocket.chat/docs/linux-and-windows-rocketchat-development-environment
+Category: Development Workflow
+--------------------------------------------------
+Question: What should I do if I encounter issues during the Rocket.Chat development environment setup?
+Answer: If you encounter any issues while setting up your development environment, refer to the troubleshooting guide provided in the documentation. This guide offers solutions for common problems during installation and configuration, ensuring you can continue contributing to Rocket.Chat.
+Source: https://developer.rocket.chat/docs/linux-and-windows-rocketchat-development-environment
+Category: Troubleshooting
+--------------------------------------------------
